@@ -30,7 +30,7 @@ const run = async () => {
   serverAdapter.setBasePath('/ui');
   app.register(serverAdapter.registerPlugin(), { prefix: '/ui' });
 
-  await app.listen({ port: process.env.PORT });
+  await app.listen({ port: process.env.PORT, host: process.env.HOST });
   
   // eslint-disable-next-line no-console
   console.log(`Running on ${process.env.PORT}...`);
