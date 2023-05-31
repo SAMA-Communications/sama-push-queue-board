@@ -1,0 +1,23 @@
+{
+  "name": "sama-push-queue-board",
+  "version": "0.1.0",
+  "description": "Push queue dashboard",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@khomenkoigor:SAMA-Communications/sama-push-queue-board.git"
+  },
+  "author": "Igor Khomenko",
+  "license": "MIT",
+  "dependencies": {
+    "@bull-board/api": "^5.2.0",
+    "@bull-board/fastify": "^5.2.0",
+    "bullmq": "^3.14.2",
+    "dotenv": "^16.1.1",
+    "fastify": "^4.17.0"
+  }
+}
