@@ -13,4 +13,4 @@ A web service to monitor Push queue
 
 ## License
 
-MIT
+[MIT](LICENSE)
