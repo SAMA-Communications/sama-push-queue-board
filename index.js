@@ -30,6 +30,8 @@ const run = async () => {
   serverAdapter.setBasePath('/ui');
   app.register(serverAdapter.registerPlugin(), { prefix: '/ui' });
 
+  require('./sama-stats')(app);
+
   await app.listen({ port: process.env.PORT, host: process.env.HOST });
   
   // eslint-disable-next-line no-console

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/jsoneditor@10.0.0/dist/jsoneditor.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsoneditor@10.0.0/dist/jsoneditor.min.css">
+    <style>
+    </style>
+    <title>Sama Server Stats</title>
+</head>
+<body>
+<div>
+  <div id="ServerStats"></div>
+</div>
+
+<script>
+  const elemId = 'ServerStats'
+  const container = document.getElementById(elemId);
+  const editor = new JSONEditor(container, {
+      mode: "view"
+    });
+
+  async function fetchServerStats() {
+    const url = `${location.origin}/stats/data/sama-server`
+    const stats = await fetch(url, { method: "GET" })
+      .then(response => response.json())
+      .catch(error => {
+        console.log('[Error][fetching]', url, error)
+        return { error: error?.message }
+      })
+
+    console.log('[serverStats]', stats)
+
+    return stats
+  }
+
+  async function fetchAndDisplayServerStats() {
+    const stats = await fetchServerStats()
+    const dataView = stats?.serverStats ?? stats
+
+    editor.set(dataView);
+  }
+
+  setInterval(fetchAndDisplayServerStats, 13_000)
+  fetchAndDisplayServerStats()
+</script>
+</body>
+</html>
