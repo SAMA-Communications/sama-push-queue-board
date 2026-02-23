@@ -13,10 +13,12 @@
 </head>
 <body>
 <div>
+  <div id="fetch-date"></div>
   <div id="ServerStats"></div>
 </div>
 
 <script>
+  const fetchDateId = 'fetch-date'
   const elemId = 'ServerStats'
   const container = document.getElementById(elemId);
   const editor = new JSONEditor(container, {
@@ -32,16 +34,21 @@
         return { error: error?.message }
       })
 
-    console.log('[serverStats]', stats)
-
     return stats
   }
 
   async function fetchAndDisplayServerStats() {
+    const fetchDate = new Date().toString()
+
     const stats = await fetchServerStats()
+
+    console.log('[serverStats]', stats, fetchDate)
+
     const dataView = stats?.serverStats ?? stats
 
     editor.set(dataView);
+
+    document.getElementById(fetchDateId).textContent = fetchDate
   }
 
   setInterval(fetchAndDisplayServerStats, 30_000)
