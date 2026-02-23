@@ -51,7 +51,7 @@
     document.getElementById(fetchDateId).textContent = fetchDate
   }
 
-  setInterval(fetchAndDisplayServerStats, 30_000)
+  setInterval(fetchAndDisplayServerStats, +<%= updateTime %>)
   fetchAndDisplayServerStats()
 </script>
 </body>
