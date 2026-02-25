@@ -6,7 +6,7 @@ let lastServerStats = {}
 const fetchSamaServerStats = async () => {
   const serverStats = await fetch(
       `${process.env.SAMA_URL}/admin/server-stats?format=1`,
-      { method: 'GET', headers: {'Admin-Api-Key': process.env.SAMA_ADMIN_API_AUTH_KEY} }  
+      { method: 'GET', headers: {'Admin-Api-Key': process.env.SAMA_ADMIN_API_KEY} }  
     )
     .then(response => response.json())
     .then(serverStats => ({ serverStats }))
