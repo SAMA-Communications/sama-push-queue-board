@@ -13,22 +13,32 @@
 </head>
 <body>
 <div>
-  <div id="fetch-date"></div>
+  <div>
+    <div>Server Fetch date: <span id="fetch-date"></span></div>
+    <div>Client Update date: <span id="update-date"></span></div>
+  </div>
   <div id="ServerStats"></div>
 </div>
 
 <script>
-  const fetchDateId = 'fetch-date'
   const elemId = 'ServerStats'
   const container = document.getElementById(elemId);
-  const editor = new JSONEditor(container, {
-      mode: "view"
-    });
+  const editor = new JSONEditor(container, { mode: "view" });
+
+  const fetchDateId = 'fetch-date'
+  const updateDateId = 'update-date'
 
   async function fetchServerStats() {
     const url = `${location.origin}/stats/data/sama-server`
     const stats = await fetch(url, { method: "GET" })
       .then(response => response.json())
+      .then(data => {
+        if (data?.serverStats?.fetchDate) {
+          data.serverStats.fetchDate = new Date(data.serverStats.fetchDate).toString()
+        }
+
+        return data
+      })
       .catch(error => {
         console.log('[Error][fetching]', url, error)
         return { error: error?.message }
@@ -38,17 +48,24 @@
   }
 
   async function fetchAndDisplayServerStats() {
-    const fetchDate = new Date().toString()
+    const updateDate = new Date().toString()
+    let fetchDate = void 0
 
     const stats = await fetchServerStats()
 
-    console.log('[serverStats]', stats, fetchDate)
+    console.log('[serverStats]', stats, updateDate)
+
+    if (stats?.serverStats?.fetchDate) {
+      fetchDate = stats.serverStats.fetchDate
+      delete stats.serverStats.fetchDate
+    }
 
     const dataView = stats?.serverStats ?? stats
 
     editor.set(dataView);
 
-    document.getElementById(fetchDateId).textContent = fetchDate
+    document.getElementById(updateDateId).textContent = updateDate
+    document.getElementById(fetchDateId).textContent = fetchDate ?? '-'
   }
 
   setInterval(fetchAndDisplayServerStats, +<%= updateTime %>)
