@@ -32,13 +32,6 @@
     const url = `${location.origin}/stats/data/sama-server`
     const stats = await fetch(url, { method: "GET" })
       .then(response => response.json())
-      .then(data => {
-        if (data?.serverStats?.fetchDate) {
-          data.serverStats.fetchDate = new Date(data.serverStats.fetchDate).toString()
-        }
-
-        return data
-      })
       .catch(error => {
         console.log('[Error][fetching]', url, error)
         return { error: error?.message }
@@ -53,12 +46,12 @@
 
     const stats = await fetchServerStats()
 
-    console.log('[serverStats]', stats, updateDate)
-
     if (stats?.serverStats?.fetchDate) {
       fetchDate = stats.serverStats.fetchDate
       delete stats.serverStats.fetchDate
     }
+
+    console.log('[serverStats]', stats, fetchDate, updateDate)
 
     const dataView = stats?.serverStats ?? stats
 
