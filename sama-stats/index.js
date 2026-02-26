@@ -9,7 +9,7 @@ const fetchSamaServerStats = async () => {
       { method: 'GET', headers: {'Admin-Api-Key': process.env.SAMA_ADMIN_API_KEY} }  
     )
     .then(response => response.json())
-    .then(serverStats => ({ serverStats: Object.assign(serverStats, { fetchDate: new Date().toISOString() }) }))
+    .then(serverStats => ({ serverStats: Object.assign(serverStats, { fetchDate: new Date().toString() }) }))
     .catch(error => {
       console.log('[Error][fetching]', error)
       const message = `SAMA Server: ${error.message}`
