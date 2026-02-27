@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/jsoneditor@10.0.0/dist/jsoneditor.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsoneditor@10.0.0/dist/jsoneditor.min.css">
+    <style>
+    </style>
+    <title>Sama Server Stats</title>
+</head>
+<body>
+<div>
+  <div>
+    <div>Server Fetch date: <span id="fetch-date"></span></div>
+    <div>Client Update date: <span id="update-date"></span></div>
+  </div>
+  <div id="ServerStats"></div>
+</div>
+
+<script>
+  const elemId = 'ServerStats'
+  const container = document.getElementById(elemId);
+  const editor = new JSONEditor(container, { mode: "view" });
+
+  const fetchDateId = 'fetch-date'
+  const updateDateId = 'update-date'
+
+  async function fetchServerStats() {
+    const url = `${location.origin}/stats/data/sama-server`
+    const stats = await fetch(url, { method: "GET" })
+      .then(response => response.json())
+      .catch(error => {
+        console.log('[Error][fetching]', url, error)
+        return { error: error?.message }
+      })
+
+    return stats
+  }
+
+  async function fetchAndDisplayServerStats() {
+    const updateDate = new Date().toString()
+    let fetchDate = void 0
+
+    const stats = await fetchServerStats()
+
+    if (stats?.serverStats?.fetchDate) {
+      fetchDate = stats.serverStats.fetchDate
+      delete stats.serverStats.fetchDate
+    }
+
+    console.log('[serverStats]', stats, fetchDate, updateDate)
+
+    const dataView = stats?.serverStats ?? stats
+
+    editor.set(dataView);
+
+    document.getElementById(updateDateId).textContent = updateDate
+    document.getElementById(fetchDateId).textContent = fetchDate ?? '-'
+  }
+
+  setInterval(fetchAndDisplayServerStats, +<%= updateTime %>)
+  fetchAndDisplayServerStats()
+</script>
+</body>
+</html>
