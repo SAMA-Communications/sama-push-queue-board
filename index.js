@@ -31,8 +31,8 @@ const run = async () => {
   serverAdapter.setBasePath('/ui');
   app.register(serverAdapter.registerPlugin(), { prefix: '/ui' });
 
-  if (process.env.SAMA_URL) {
-    require('./sama-stats')(app);
+  if (process.env.SAMA_ADMIN_API_KEY) {
+    require('./sama-stats')(app, redisOptions);
   }
 
   await app.listen({ port: process.env.PORT, host: process.env.HOST });
