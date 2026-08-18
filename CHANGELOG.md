@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+### Important Notes
+
+- Update stats formatting
+
 ## 0.0.1 (Example)
 
 ### Important Notes

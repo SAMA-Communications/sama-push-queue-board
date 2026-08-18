@@ -1,5 +1,6 @@
 const path = require('node:path')
 const Redis = require('ioredis')
+const { default: prettyMs } = require('pretty-ms')
 const pointOfView = require('@fastify/view')
 
 const PING_TIMEOUT_MS = 3_000
@@ -95,6 +96,18 @@ const pingRedis = async () => {
   }
 }
 
+const formatStats = (stats) => {
+  if (!Object.entries(stats).length || !stats) return stats
+
+  stats = JSON.parse(JSON.stringify(stats))
+
+  Object.entries(stats).forEach(([endpoint, item]) => {
+    item.uptime = prettyMs(item.uptime_seconds * 1000)
+  })
+
+  return stats
+}
+
 module.exports = (fastifyApp, redisOptions) => {
   redisConnection = new Redis(redisOptions)
 
@@ -128,7 +141,7 @@ module.exports = (fastifyApp, redisOptions) => {
     method: 'GET',
     url: '/stats/data/sama-server',
     handler: async (req, reply) => {  
-      reply.send({ fetchDate: lastFetchDate, stats: lastServerStats })
+      reply.send({ fetchDate: lastFetchDate, stats: formatStats(lastServerStats) })
     },
   });
 
