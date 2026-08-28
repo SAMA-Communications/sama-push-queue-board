@@ -1,6 +1,9 @@
 const path = require('node:path')
 const Redis = require('ioredis')
+const { default: prettyMs } = require('pretty-ms')
 const pointOfView = require('@fastify/view')
+
+const PING_TIMEOUT_MS = 3_000
 
 let redisConnection = void 0
 let lastFetchDate = void 0
@@ -63,6 +66,48 @@ const updateClusterStats = async () => {
 
 const startFetchingServerStats = () => setInterval(updateClusterStats, process.env.SERVER_UPDATE_INTERVAL ?? 30_000)
 
+const checkHealth = async (req, reply) => {
+  const redisResult = await pingRedis()
+  const dependencies = [
+    redisResult,
+    ...(Object.values(lastServerStats) ?? [])
+  ]
+
+  const isOk = dependencies.every(item => item?.status === 'ok')
+
+  const status = {
+    status: isOk ? 'ok' : 'fail',
+    uptime_seconds: Math.floor(process.uptime()),
+    dependencies
+  }
+  
+  return status
+}
+
+const pingRedis = async () => {
+  try {
+    await Promise.race([
+      redisConnection.ping(),
+      new Promise((resolve, reject) => setTimeout(() => reject(new Error(`ping timed out after ${PING_TIMEOUT_MS}ms`)), PING_TIMEOUT_MS))
+    ])
+    return { name: 'redis', status: 'ok' }
+  } catch (error) {
+    return { name: 'redis', status: 'fail', error: error.message }
+  }
+}
+
+const formatStats = (stats) => {
+  if (!Object.entries(stats).length || !stats) return stats
+
+  stats = JSON.parse(JSON.stringify(stats))
+
+  Object.entries(stats).forEach(([endpoint, item]) => {
+    item.uptime = prettyMs(item.uptime_seconds * 1000)
+  })
+
+  return stats
+}
+
 module.exports = (fastifyApp, redisOptions) => {
   redisConnection = new Redis(redisOptions)
 
@@ -82,12 +127,21 @@ module.exports = (fastifyApp, redisOptions) => {
       });
     },
   });
+
+  fastifyApp.route({
+    method: 'GET',
+    url: '/stats/health',
+    handler: async (req, reply) => {
+      const stats = await checkHealth()
+      reply.send(stats)
+    },
+  });
   
   fastifyApp.route({
     method: 'GET',
     url: '/stats/data/sama-server',
     handler: async (req, reply) => {  
-      reply.send({ fetchDate: lastFetchDate, stats: lastServerStats })
+      reply.send({ fetchDate: lastFetchDate, stats: formatStats(lastServerStats) })
     },
   });
 
